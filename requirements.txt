@@ -1,0 +1,8 @@
+flask
+tensorflow==2.12.0
+opencv-python
+numpy
+pillow
+gunicorn
+werkzeug
+flask-cors

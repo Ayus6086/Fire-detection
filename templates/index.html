@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>🔥 AI Fire Detection System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+      color: #ff9800;
+      text-shadow: 0px 0px 10px #ff6f00;
+    }
+
+    section {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.3);
+      padding: 25px;
+      margin: 30px auto;
+      width: 500px;
+    }
+
+    button {
+      background: #ff9800;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background: #ffb74d;
+      transform: scale(1.05);
+    }
+
+    input[type="file"], input[type="number"] {
+      padding: 6px;
+      margin: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    img {
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 2px solid #ff9800;
+    }
+
+    video {
+      border-radius: 10px;
+      border: 3px solid #ff9800;
+      margin-top: 10px;
+    }
+
+    #alarmControls {
+      margin-top: 15px;
+    }
+
+    #stopAlarm {
+      background: #f44336;
+    }
+
+    #stopAlarm:hover {
+      background: #ff6659;
+    }
+
+    #webcamStatus {
+      color: #ccc;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🔥 AI Fire Detection (Software-Only)</h1>
+
+  <!-- ========== Upload Section ========== -->
+  <section>
+    <h2>📤 Upload Image</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name="image" id="fileInput" accept="image/*" required>
+      <br>
+      <button type="submit">Upload & Predict</button>
+      <button id="resetBtn">Reset 🔄</button>
+    
+
+
+    </form>
+
+    {% if fire is not none %}
+      <p><strong>Fire:</strong> {{ fire }}</p>
+      {% if img_path %}
+        <img src="{{ img_path }}" alt="Uploaded Image" width="300">
+      {% endif %}
+    {% endif %}
+  </section>
+
+
+  <!-- ========== Alarm Section ========== -->
+  <section id="alarmControls">
+    <h2>🚨 Alarm Controls</h2>
+    <button id="stopAlarm">Stop Alarm 🔇</button>
+    <button id="resetAlarmBtn">Reset & Stop Alarm 🔄</button>
+    <!-- <button id="resetAndStopBtn">Reset & Stop Music 🎵🔄</button> -->
+  </section>
+
+  <!-- ========== Webcam Section ========== -->
+  <section>
+    <h2>📹 Webcam Monitor</h2>
+    <video id="video" width="480" height="360" autoplay muted></video>
+    <canvas id="canvas" width="480" height="360" style="display:none"></canvas>
+    <p id="webcamStatus">Status: idle</p>
+
+    <label>Send frame every 
+      <input id="interval" type="number" value="1000" min="500" max="5000"> ms
+    </label>
+    <br>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+  </section>
+
+  </script>
+  </section>
+
+  <!-- ========== Audio ========== -->
+  <audio id="alarmAudio" src="/static/alarm/alarm.mp3" preload="auto"></audio>
+
+  <!-- ========== JS Scripts ========== -->
+  <script src="/static/js/app.js"></script>
+
+  <script>
+    // Play alarm sound
+    function playAlarm() {
+      const audio = document.getElementById('alarmAudio');
+      audio.play();
+    }
+
+    // Stop alarm
+    document.getElementById('stopAlarm').addEventListener('click', () => {
+      const audio = document.getElementById('alarmAudio');
+      audio.pause();
+      audio.currentTime = 0;
+    });
+
+    // Trigger alarm if fire detected
+    {% if fire == True %}
+      playAlarm();
+      alert("🔥 Fire Detected! (Score: {{ score }})");
+    {% endif %}
+  </script>
+
+  <script>
+  const resetBtn = document.getElementById('resetBtn');
+  resetBtn.addEventListener('click', () => {
+    // reset frontend display
+    document.getElementById('fileInput').value = "";
+    document.getElementById('webcamStatus').innerText = "Status: idle";
+    const img = document.querySelector('img');
+    if (img) img.remove();
+    const fireText = document.querySelector('p strong');
+    if (fireText) fireText.parentElement.remove();
+    alert("Data reset!");
+  });
+</script>
+
+<script>
+  const resetAlarmBtn = document.getElementById('resetAlarmBtn');
+
+  resetAlarmBtn.addEventListener('click', () => {
+    // Stop alarm audio
+    const audio = document.getElementById('alarmAudio');
+    audio.pause();
+    audio.currentTime = 0;
+
+    // Reset upload input
+    const fileInput = document.getElementById('fileInput');
+    fileInput.value = "";
+
+    // Remove uploaded image
+    const img = document.querySelector('img');
+    if (img) img.remove();
+
+    // Reset fire status text
+    const fireText = document.querySelector('p strong');
+    if (fireText) fireText.parentElement.remove();
+
+    // Reset webcam status
+    const webcamStatus = document.getElementById('webcamStatus');
+    webcamStatus.innerText = "Status: idle";
+
+    // Optional: stop video stream if active
+    const video = document.getElementById('video');
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
+    }
+
+    alert("✅ Alarm stopped and data reset!");
+  });
+</script>
+
+
+</body>
+</html>
